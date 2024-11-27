@@ -91,6 +91,7 @@ document.getElementById('refresh').addEventListener('click', () => {
 
 function refresh() {
 	let strategy = 'xy';
+	if (document.getElementById('strategy-yx').checked) strategy = 'yx';
 	if (document.getElementById('strategy-nocoords').checked) strategy = 'nocoords';
 
 	const config = generateConfig(strategy);
@@ -105,6 +106,8 @@ function generateConfig(strategy) {
 	const allChannels = [...measures, ...segregated, ...other];
 	const geometry = getGeometry();
 	const stackedSeries = stackedGemoetries.includes(geometry) ? other : [];
+	let coordSystem = 'cartesian';
+	if (document.getElementById('coords-polar').checked) coordSystem = 'polar';
 
 	/* 
 	 * Strategy 'nocoords'
@@ -123,7 +126,22 @@ function generateConfig(strategy) {
 				noop: segregated.map(x => x.name),
 				size: ([...measures, ...other]).map(x => x.name),
 			},
-			geometry: getGeometry()
+			geometry: getGeometry(),
+			coordSystem: coordSystem
+		};
+	}
+
+	if (strategy === 'yx') {
+		return {
+			channels: {
+				y: segregated.map(x => x.name),
+				x: ([...measures, ...stackedSeries]).map(x => x.name),
+				color: allChannels.filter(x => x.indicators.includes('C')).map(x => x.name),
+				lightness: allChannels.filter(x => x.indicators.includes('L')).map(x => x.name),
+				size: allChannels.filter(x => x.indicators.includes('S')).map(x => x.name),
+			},
+			geometry: getGeometry(),
+			coordSystem: coordSystem
 		};
 	}
 
@@ -142,7 +160,8 @@ function generateConfig(strategy) {
 			lightness: allChannels.filter(x => x.indicators.includes('L')).map(x => x.name),
 			size: allChannels.filter(x => x.indicators.includes('S')).map(x => x.name),
 		},
-		geometry: getGeometry()
+		geometry: getGeometry(),
+		coordSystem: coordSystem
 	};
 
 

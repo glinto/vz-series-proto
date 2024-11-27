@@ -40,12 +40,24 @@
 			</div>
 
 			<div class="app__seriesbox">
+				<label>Coordinate system</label>
+				<div>
+					<input type="radio" id="coords-cartesian" name="coords" value="cartesian" checked>
+					<label for="coords-cartesian">Cartesian</label>
+					<input type="radio" id="coords-polar" name="coords" value="polar">
+					<label for="coords-polar">Polar</label>
+				</div>
+			</div>
+
+			<div class="app__seriesbox">
 				<label>Mapping strategy</label>
 				<div>
 					<input type="radio" id="strategy-xy" name="strategy" value="xy" checked>
-					<label for="rectangle">X-Y</label>
+					<label for="strategy-xy">X-Y</label>
+					<input type="radio" id="strategy-yx" name="strategy" value="yx">
+					<label for="strategy-yx">Y-X</label>
 					<input type="radio" id="strategy-nocoords" name="strategy" value="nocoords">
-					<label for="rectangle">No coords</label>
+					<label for="strategy-nocoords">No coords</label>
 				</div>
 			</div>
 
