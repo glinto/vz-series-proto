@@ -1,76 +1,78 @@
 <html>
-<head>
-	<title>Proto</title>
-	<link rel="stylesheet" href="css/style.css">
-	<script src="client.js" type="module"></script>
-	<script src="js/index.js" type="module"></script>
-</head>
-<body>
-	<div class="app">
-		<div class="app__controls">
-			<div class="app__seriesbox">
-				<label>Measures</label>
-				<textarea id="measures" class="app__textinput" placeholder="Enter series" rows="4">Copies</textarea>
-			</div>
-			
-			<div class="app__seriesbox">
-				<label>Segregated dimensions</label>
-				<textarea id="segregated-dimensions" class="app__textinput" placeholder="Enter series" rows="4">Country</textarea>
-			</div>
-
-			<div class="app__seriesbox">
-				<label>Other dimensions</label>
-				<textarea id="other-dimensions" class="app__textinput" placeholder="Enter series" rows="4">Genre:C</textarea>
-			</div>	
-
-			<div class="app__seriesbox">
-				<label>Geometry</label>
-				<div>
-					<input type="radio" id="rectangle" name="geometry" value="rectangle" checked>
-					<label for="rectangle">Rectangle</label>
-
-					<input type="radio" id="circle" name="geometry" value="circle">
-					<label for="circle">Circle</label>
-
-					<input type="radio" id="line" name="geometry" value="line">
-					<label for="line">Line</label>
-
-					<input type="radio" id="area" name="geometry" value="area">
-					<label for="area">Area</label>
+	<head>
+		<title>Proto</title>
+		<link rel="stylesheet" href="css/style.css" />
+		<script src="client.js" type="module"></script>
+		<script src="js/index.js" type="module"></script>
+	</head>
+	<body>
+		<div class="app">
+			<div class="app__controls">
+				<div class="app__seriesbox">
+					<label>Measures</label>
+					<textarea id="measures" class="app__textinput" placeholder="Enter series" rows="4">Copies</textarea>
 				</div>
-			</div>
 
-			<div class="app__seriesbox">
-				<label>Coordinate system</label>
-				<div>
-					<input type="radio" id="coords-cartesian" name="coords" value="cartesian" checked>
-					<label for="coords-cartesian">Cartesian</label>
-					<input type="radio" id="coords-polar" name="coords" value="polar">
-					<label for="coords-polar">Polar</label>
+				<div class="app__seriesbox">
+					<label>Segregated dimensions</label>
+					<textarea id="segregated-dimensions" class="app__textinput" placeholder="Enter series" rows="4">
+Country</textarea
+					>
 				</div>
-			</div>
 
-			<div class="app__seriesbox">
-				<label>Mapping strategy</label>
-				<div>
-					<input type="radio" id="strategy-xy" name="strategy" value="xy" checked>
-					<label for="strategy-xy">X-Y</label>
-					<input type="radio" id="strategy-yx" name="strategy" value="yx">
-					<label for="strategy-yx">Y-X</label>
-					<input type="radio" id="strategy-nocoords" name="strategy" value="nocoords">
-					<label for="strategy-nocoords">No coords</label>
+				<div class="app__seriesbox">
+					<label>Other dimensions</label>
+					<textarea id="other-dimensions" class="app__textinput" placeholder="Enter series" rows="4">Genre:C</textarea>
 				</div>
+
+				<div class="app__seriesbox">
+					<label>Geometry</label>
+					<div>
+						<input type="radio" id="rectangle" name="geometry" value="rectangle" checked />
+						<label for="rectangle">Rectangle</label>
+
+						<input type="radio" id="circle" name="geometry" value="circle" />
+						<label for="circle">Circle</label>
+
+						<input type="radio" id="line" name="geometry" value="line" />
+						<label for="line">Line</label>
+
+						<input type="radio" id="area" name="geometry" value="area" />
+						<label for="area">Area</label>
+					</div>
+				</div>
+
+				<div class="app__seriesbox">
+					<label>Coordinate system</label>
+					<div>
+						<input type="radio" id="coords-cartesian" name="coords" value="cartesian" checked />
+						<label for="coords-cartesian">Cartesian</label>
+						<input type="radio" id="coords-polar" name="coords" value="polar" />
+						<label for="coords-polar">Polar</label>
+					</div>
+				</div>
+
+				<div class="app__seriesbox">
+					<label>Mapping strategy</label>
+					<div>
+						<input type="radio" id="strategy-xy" name="strategy" value="xy" checked />
+						<label for="strategy-xy">X-Y</label>
+						<input type="radio" id="strategy-yx" name="strategy" value="yx" />
+						<label for="strategy-yx">Y-X</label>
+						<input type="radio" id="strategy-nocoords" name="strategy" value="nocoords" />
+						<label for="strategy-nocoords">No coords</label>
+						<input type="radio" id="strategy-scatter" name="strategy" value="scatter" />
+						<label for="strategy-scatter">Scatter</label>
+					</div>
+				</div>
+
+				<button id="refresh" class="app__button">Refresh</button>
 			</div>
-
-			<button id="refresh" class="app__button">Refresh</button>
-
+			<div id="mychart" class="app__chart"></div>
+			<div class="app__config">
+				<label>Chart config</label>
+				<pre></pre>
+			</div>
 		</div>
-		<div id="mychart" class="app__chart"></div>
-		<div class="app__config">
-			<label>Chart config</label>
-			<pre></pre>
-		</div>
-	</div>
-	
-</body>
+	</body>
 </html>

@@ -22,11 +22,11 @@ export enum SeriesMappingStrategies {
 	XY = 'xy',
 	YX = 'yx',
 	NOCOORDS = 'nocoords',
-	SCATTER = 'scatter',
-	WATERFALL = 'waterfall'
+	SCATTER = 'scatter'
+	//WATERFALL = 'waterfall'
 }
 
-abstract class SeriesMappingStrategy {
+abstract class SeriesMappingStrategyBase {
 	constructor(
 		protected readonly geometry: Geometry,
 		protected readonly measures: Series[],
@@ -35,29 +35,19 @@ abstract class SeriesMappingStrategy {
 	) {}
 
 	get allSeries(): Series[] {
-		return [
-			...this.measures,
-			...this.stackerDimensions,
-			...this.stackedDimensions
-		];
+		return [...this.measures, ...this.stackerDimensions, ...this.stackedDimensions];
 	}
 
 	get colorSeries(): Series[] {
-		return this.unique(
-			this.allSeries.filter((s) => s.indicators.includes('C'))
-		);
+		return this.unique(this.allSeries.filter((s) => s.indicators.includes('C')));
 	}
 
 	get lightnessSeries(): Series[] {
-		return this.unique(
-			this.allSeries.filter((s) => s.indicators.includes('L'))
-		);
+		return this.unique(this.allSeries.filter((s) => s.indicators.includes('L')));
 	}
 
 	get sizeSeries(): Series[] {
-		return this.unique(
-			this.allSeries.filter((s) => s.indicators.includes('S'))
-		);
+		return this.unique(this.allSeries.filter((s) => s.indicators.includes('S')));
 	}
 
 	unique<T>(arr: T[]): T[] {
@@ -67,6 +57,51 @@ abstract class SeriesMappingStrategy {
 	abstract generateConfig: () => ConfigLike;
 }
 
+export type SeriesMappingStrategy =
+	| typeof XYMappingStrategy
+	| typeof YXMappingStrategy
+	| typeof NocoordsMappingStrategy;
+
+/*
+ * Generic rule:
+ * Lightness and color can have only one measure or multiple dimensions
+ * You cannot mix measures and dimensions in color and lightness
+ */
+
+/**
+ * The scatter strategy is used for scatter charts
+ * - First measure is mapped to x
+ * - Second measure is mapped to y
+ * - Stackable dimensions are mapped to noop unless they are mapped to color or lightness
+ * - Stacked dimensions are mapped to noop unless they are mapped to color or lightness
+ */
+export class ScatterMappingStrategy extends SeriesMappingStrategyBase {
+	generateConfig = (): ConfigLike => {
+		if (this.measures.length < 2) {
+			throw new Error('Scatter chart must have at least 2 measures');
+		}
+		return {
+			channels: {
+				x: [this.measures[0].name],
+				y: [this.measures[1].name],
+				color: this.colorSeries.map((s) => s.name),
+				lightness: this.lightnessSeries.map((s) => s.name),
+				noop: [...this.stackerDimensions, ...this.stackedDimensions]
+					.filter((s) => !s.indicators.includes('C') && !s.indicators.includes('L'))
+					.map((s) => s.name),
+				size: this.sizeSeries.map((s) => s.name)
+			}
+		};
+	};
+}
+
+/**
+ * Strategy 'waterfall' xy
+ * 1 measure on y
+ * Segregated dimensions on x
+ * non-deg x and on y
+ */
+
 /**
  * This strategy is used for bubble and treemap charts
  * - No coordinates are used
@@ -75,7 +110,7 @@ abstract class SeriesMappingStrategy {
  * - Stacker dimensions are mapped to noop
  * - Stacked dimensions are mapped to size
  */
-export class NocoordsStrategy extends SeriesMappingStrategy {
+export class NocoordsMappingStrategy extends SeriesMappingStrategyBase {
 	generateConfig = (): ConfigLike => {
 		return {
 			channels: {
@@ -84,9 +119,7 @@ export class NocoordsStrategy extends SeriesMappingStrategy {
 				color: this.colorSeries.map((s) => s.name),
 				lightness: this.lightnessSeries.map((s) => s.name),
 				noop: this.stackerDimensions.map((s) => s.name),
-				size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map(
-					(s) => s.name
-				)
+				size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map((s) => s.name)
 			}
 		};
 	};
@@ -98,16 +131,13 @@ export class NocoordsStrategy extends SeriesMappingStrategy {
  * - Stacker dimensions are mapped to x
  * - Other dimensions are mapped to y if the geometry is stackable, otherwise noop
  */
-export class XYStrategy extends SeriesMappingStrategy {
+export class XYMappingStrategy extends SeriesMappingStrategyBase {
 	generateConfig = (): ConfigLike => {
 		const stackable = StackableGeometries.includes(this.geometry);
 		return {
 			channels: {
 				x: this.stackerDimensions.map((s) => s.name),
-				y: [
-					...this.measures.slice(0, 1),
-					...(stackable ? this.stackedDimensions : [])
-				].map((s) => s.name),
+				y: [...this.measures.slice(0, 1), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
 
 				noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
 
@@ -120,22 +150,19 @@ export class XYStrategy extends SeriesMappingStrategy {
 }
 
 /**
- * Classic YX strategy (flipped orientation classic)
+ * Classic YX strategy (or flipped orientation classic)
  * - First measure is mapped to x
  * - Stacker dimensions are mapped to y
  * - Other dimensions are mapped to x if the geometry is stackable, otherwise noop
  * - Orientation is flipped by defining y as the first channel
  */
-export class YXStrategy extends SeriesMappingStrategy {
+export class YXMappingStrategy extends SeriesMappingStrategyBase {
 	generateConfig = (): ConfigLike => {
 		const stackable = StackableGeometries.includes(this.geometry);
 		return {
 			channels: {
 				y: this.stackerDimensions.map((s) => s.name),
-				x: [
-					...this.measures.slice(0, 1),
-					...(stackable ? this.stackedDimensions : [])
-				].map((s) => s.name),
+				x: [...this.measures.slice(0, 1), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
 
 				noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
 

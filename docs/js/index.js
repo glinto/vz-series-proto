@@ -3,7 +3,7 @@ import Vizzu from "https://cdn.jsdelivr.net/npm/vizzu@0.15/dist/vizzu.min.js";
 
 // src/series.ts
 var StackableGeometries = ["rectangle", "area"];
-var SeriesMappingStrategy = class {
+var SeriesMappingStrategyBase = class {
   constructor(geometry, measures, stackerDimensions, stackedDimensions) {
     this.geometry = geometry;
     this.measures = measures;
@@ -11,32 +11,39 @@ var SeriesMappingStrategy = class {
     this.stackedDimensions = stackedDimensions;
   }
   get allSeries() {
-    return [
-      ...this.measures,
-      ...this.stackerDimensions,
-      ...this.stackedDimensions
-    ];
+    return [...this.measures, ...this.stackerDimensions, ...this.stackedDimensions];
   }
   get colorSeries() {
-    return this.unique(
-      this.allSeries.filter((s) => s.indicators.includes("C"))
-    );
+    return this.unique(this.allSeries.filter((s) => s.indicators.includes("C")));
   }
   get lightnessSeries() {
-    return this.unique(
-      this.allSeries.filter((s) => s.indicators.includes("L"))
-    );
+    return this.unique(this.allSeries.filter((s) => s.indicators.includes("L")));
   }
   get sizeSeries() {
-    return this.unique(
-      this.allSeries.filter((s) => s.indicators.includes("S"))
-    );
+    return this.unique(this.allSeries.filter((s) => s.indicators.includes("S")));
   }
   unique(arr) {
     return Array.from(new Set(arr).values());
   }
 };
-var NocoordsStrategy = class extends SeriesMappingStrategy {
+var ScatterMappingStrategy = class extends SeriesMappingStrategyBase {
+  generateConfig = () => {
+    if (this.measures.length < 2) {
+      throw new Error("Scatter chart must have at least 2 measures");
+    }
+    return {
+      channels: {
+        x: [this.measures[0].name],
+        y: [this.measures[1].name],
+        color: this.colorSeries.map((s) => s.name),
+        lightness: this.lightnessSeries.map((s) => s.name),
+        noop: [...this.stackerDimensions, ...this.stackedDimensions].filter((s) => !s.indicators.includes("C") && !s.indicators.includes("L")).map((s) => s.name),
+        size: this.sizeSeries.map((s) => s.name)
+      }
+    };
+  };
+};
+var NocoordsMappingStrategy = class extends SeriesMappingStrategyBase {
   generateConfig = () => {
     return {
       channels: {
@@ -45,23 +52,18 @@ var NocoordsStrategy = class extends SeriesMappingStrategy {
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
         noop: this.stackerDimensions.map((s) => s.name),
-        size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map(
-          (s) => s.name
-        )
+        size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map((s) => s.name)
       }
     };
   };
 };
-var XYStrategy = class extends SeriesMappingStrategy {
+var XYMappingStrategy = class extends SeriesMappingStrategyBase {
   generateConfig = () => {
     const stackable = StackableGeometries.includes(this.geometry);
     return {
       channels: {
         x: this.stackerDimensions.map((s) => s.name),
-        y: [
-          ...this.measures.slice(0, 1),
-          ...stackable ? this.stackedDimensions : []
-        ].map((s) => s.name),
+        y: [...this.measures.slice(0, 1), ...stackable ? this.stackedDimensions : []].map((s) => s.name),
         noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
@@ -70,16 +72,13 @@ var XYStrategy = class extends SeriesMappingStrategy {
     };
   };
 };
-var YXStrategy = class extends SeriesMappingStrategy {
+var YXMappingStrategy = class extends SeriesMappingStrategyBase {
   generateConfig = () => {
     const stackable = StackableGeometries.includes(this.geometry);
     return {
       channels: {
         y: this.stackerDimensions.map((s) => s.name),
-        x: [
-          ...this.measures.slice(0, 1),
-          ...stackable ? this.stackedDimensions : []
-        ].map((s) => s.name),
+        x: [...this.measures.slice(0, 1), ...stackable ? this.stackedDimensions : []].map((s) => s.name),
         noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
@@ -89,7 +88,7 @@ var YXStrategy = class extends SeriesMappingStrategy {
   };
 };
 
-// src/index.ts
+// src/data.ts
 var data = {
   series: [
     { name: "Genre", type: "dimension" },
@@ -149,13 +148,29 @@ var data = {
     ["Electronic", "Store", "Japan", 5e3, 4]
   ]
 };
+
+// src/index.ts
 var chart = new Vizzu("mychart", {
   data
 });
+function radioValue(name) {
+  const radio = document.querySelector(`input[type="radio"][name="${name}"]:checked`);
+  if (radio instanceof HTMLInputElement) return radio.value;
+  return void 0;
+}
 function getGeometry() {
   return radioValue("geometry") ?? "rectangle";
 }
-function seriesFromArea(id) {
+function getCoordSystem() {
+  return radioValue("coords") ?? "cartesian";
+}
+function getStrategy() {
+  if (radioValue("strategy") === "nocoords") return "nocoords" /* NOCOORDS */;
+  if (radioValue("strategy") === "yx") return "yx" /* YX */;
+  if (radioValue("strategy") === "scatter") return "scatter" /* SCATTER */;
+  return "xy" /* XY */;
+}
+function seriesFromTextArea(id) {
   const textarea = document.querySelector(`textarea#${id}`);
   if (textarea instanceof HTMLTextAreaElement) {
     return textarea.value.split("\n").filter((x) => x.trim() !== "").map((x) => {
@@ -169,66 +184,28 @@ function seriesFromArea(id) {
   return [];
 }
 function refresh() {
-  let strategy = "xy" /* XY */;
-  if (radioValue("strategy") === "yx") strategy = "yx" /* YX */;
-  if (radioValue("strategy") === "nocoords")
-    strategy = "nocoords" /* NOCOORDS */;
-  const config = generateConfig(strategy);
+  const config = generateConfig(getStrategy());
   const pre = document.querySelector(".app__config pre");
   if (pre !== null) pre.innerHTML = JSON.stringify(config, null, 2);
   chart.animate({ config });
 }
-function radioValue(name) {
-  const radio = document.querySelector(
-    `input[type="radio"][name="${name}"]:checked`
-  );
-  console.log(radio);
-  if (radio instanceof HTMLInputElement) return radio.value;
-  return void 0;
-}
 function generateConfig(strategy) {
-  const [measures, segregated, other] = [
-    seriesFromArea("measures"),
-    seriesFromArea("segregated-dimensions"),
-    seriesFromArea("other-dimensions")
+  const [measures, stacker, stacked] = [
+    seriesFromTextArea("measures"),
+    seriesFromTextArea("segregated-dimensions"),
+    seriesFromTextArea("other-dimensions")
   ];
   const geometry = getGeometry();
-  let coordSystem = "cartesian";
-  if (radioValue("coords") === "polar") coordSystem = "polar";
-  if (strategy === "nocoords") {
-    const strat2 = new NocoordsStrategy(
-      geometry,
-      measures,
-      segregated,
-      other
-    );
-    return {
-      ...strat2.generateConfig(),
-      coordSystem,
-      geometry
-    };
-  }
-  if (strategy === "yx") {
-    const strat2 = new YXStrategy(
-      geometry,
-      measures,
-      segregated,
-      other
-    );
-    return {
-      ...strat2.generateConfig(),
-      coordSystem,
-      geometry
-    };
-  }
-  const strat = new XYStrategy(
-    geometry,
-    measures,
-    segregated,
-    other
-  );
+  const coordSystem = getCoordSystem();
+  const mappingStrategies = {
+    ["nocoords" /* NOCOORDS */]: NocoordsMappingStrategy,
+    ["yx" /* YX */]: YXMappingStrategy,
+    ["xy" /* XY */]: XYMappingStrategy,
+    ["scatter" /* SCATTER */]: ScatterMappingStrategy
+  };
+  const mapper = new mappingStrategies[strategy](geometry, measures, stacker, stacked);
   return {
-    ...strat.generateConfig(),
+    ...mapper.generateConfig(),
     coordSystem,
     geometry
   };
