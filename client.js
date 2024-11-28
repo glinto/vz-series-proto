@@ -131,6 +131,13 @@ function generateConfig(strategy) {
 		};
 	}
 
+	/*
+	 * Strategy 'yx'
+	 * Measures are mapped to X axis
+	 * Segregated dimensions are mapped to y axis
+	 * Other dimensions are mapped x if the geometry is stackable
+	 */ 
+
 	if (strategy === 'yx') {
 		return {
 			channels: {
