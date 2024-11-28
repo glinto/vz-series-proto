@@ -106,6 +106,7 @@ function generateConfig(strategy) {
 	const allChannels = [...measures, ...segregated, ...other];
 	const geometry = getGeometry();
 	const stackedSeries = stackedGemoetries.includes(geometry) ? other : [];
+	const nonStackedSeries = stackedGemoetries.includes(geometry) ? [] : other;
 
 	let coordSystem = 'cartesian';
 	if (document.getElementById('coords-polar').checked) coordSystem = 'polar';
@@ -115,11 +116,27 @@ function generateConfig(strategy) {
 	const sizeChannels = allChannels.filter(x => x.indicators.includes('S'));
 	const sizeChannelNames = sizeChannels.map(x => x.name);
 
+	
+	/**
+	 * Generic rule: 
+	 * Lightness and color can have only one measure or multiple dimensions
+	 * You cannot mix measures and dimensions in color and lightness
+	 */
+
+
+	/* Scatter XY
+	 * 1 measure on x, 1 measure on y
+	 * Categories must go on noop or color/lightess
+	 * Categories which are not on color or lightnes must go on noop
+	 */
+
 	/* 
 	 * Strategy 'nocoords'
-	 * Can have one measure
+	 * Must have one measure on size, 
+	 * Other measures can only be on color,lightness
 	 * No coordinates are used
-	 * Measures are mapped to size
+	 * First measure are mapped to size, 
+	 * Measures without color,lihghtness are not contributing to the chart, must be removed
 	 * Segregated dimensions are mapped to noop
 	 * Other dimensions are mapped to size
 	 */
@@ -140,9 +157,9 @@ function generateConfig(strategy) {
 
 	/*
 	 * Strategy 'yx'
-	 * Measures are mapped to X axis
+	 * 1 measures are mapped to X axis
 	 * Segregated dimensions are mapped to y axis
-	 * Other dimensions are mapped x if the geometry is stackable
+	 * Other dimensions are mapped x if the geometry is stackable, otherwise noop
 	 */ 
 
 	if (strategy === 'yx') {
@@ -150,6 +167,7 @@ function generateConfig(strategy) {
 			channels: {
 				y: segregated.map(x => x.name),
 				x: ([...measures, ...stackedSeries]).map(x => x.name),
+				noop: nonStackedSeries.map(x => x.name),
 				color: colorChannelNames,
 				lightness: lightnessChannelNames,
 				size: sizeChannelNames,
@@ -160,16 +178,18 @@ function generateConfig(strategy) {
 	}
 
 	/*
+	TODO: do not accept multiple measures!!!
 	 * Default strategy 'xy'
-	 * Measures are mapped to y axis
+	 * 1 MMeasures are mapped to y axis
 	 * Segregated dimensions are mapped to x axis
-	 * Other dimensions are mapped y if the geometry is stackable
+	 * Other dimensions are mapped y if the geometry is stackable, otherwise noop
 	 */ 
 	
 	return {
 		channels: {
 			x: segregated.map(x => x.name),
 			y: ([...measures, ...stackedSeries]).map(x => x.name),
+			noop: nonStackedSeries.map(x => x.name),
 			color: colorChannelNames,
 			lightness: lightnessChannelNames,
 			size: sizeChannelNames,
