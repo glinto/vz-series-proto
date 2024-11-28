@@ -106,11 +106,18 @@ function generateConfig(strategy) {
 	const allChannels = [...measures, ...segregated, ...other];
 	const geometry = getGeometry();
 	const stackedSeries = stackedGemoetries.includes(geometry) ? other : [];
+
 	let coordSystem = 'cartesian';
 	if (document.getElementById('coords-polar').checked) coordSystem = 'polar';
+	
+	const colorChannelNames = allChannels.filter(x => x.indicators.includes('C')).map(x => x.name);
+	const lightnessChannelNames = allChannels.filter(x => x.indicators.includes('L')).map(x => x.name);
+	const sizeChannels = allChannels.filter(x => x.indicators.includes('S'));
+	const sizeChannelNames = sizeChannels.map(x => x.name);
 
 	/* 
 	 * Strategy 'nocoords'
+	 * Can have one measure
 	 * No coordinates are used
 	 * Measures are mapped to size
 	 * Segregated dimensions are mapped to noop
@@ -121,12 +128,12 @@ function generateConfig(strategy) {
 			channels: {
 				x: [],
 				y: [],
-				color: allChannels.filter(x => x.indicators.includes('C')).map(x => x.name),
-				lightness: allChannels.filter(x => x.indicators.includes('L')).map(x => x.name),
+				color: colorChannelNames,
+				lightness: lightnessChannelNames,
 				noop: segregated.map(x => x.name),
-				size: ([...measures, ...other]).map(x => x.name),
+				size: ([...measures, ...sizeChannels, ...other]).map(x => x.name),
 			},
-			geometry: getGeometry(),
+			geometry: geometry,
 			coordSystem: coordSystem
 		};
 	}
@@ -143,11 +150,11 @@ function generateConfig(strategy) {
 			channels: {
 				y: segregated.map(x => x.name),
 				x: ([...measures, ...stackedSeries]).map(x => x.name),
-				color: allChannels.filter(x => x.indicators.includes('C')).map(x => x.name),
-				lightness: allChannels.filter(x => x.indicators.includes('L')).map(x => x.name),
-				size: allChannels.filter(x => x.indicators.includes('S')).map(x => x.name),
+				color: colorChannelNames,
+				lightness: lightnessChannelNames,
+				size: sizeChannelNames,
 			},
-			geometry: getGeometry(),
+			geometry: geometry,
 			coordSystem: coordSystem
 		};
 	}
@@ -163,11 +170,11 @@ function generateConfig(strategy) {
 		channels: {
 			x: segregated.map(x => x.name),
 			y: ([...measures, ...stackedSeries]).map(x => x.name),
-			color: allChannels.filter(x => x.indicators.includes('C')).map(x => x.name),
-			lightness: allChannels.filter(x => x.indicators.includes('L')).map(x => x.name),
-			size: allChannels.filter(x => x.indicators.includes('S')).map(x => x.name),
+			color: colorChannelNames,
+			lightness: lightnessChannelNames,
+			size: sizeChannelNames,
 		},
-		geometry: getGeometry(),
+		geometry: geometry,
 		coordSystem: coordSystem
 	};
 
