@@ -168,14 +168,6 @@ function seriesFromArea(id) {
   }
   return [];
 }
-document.getElementById("refresh")?.addEventListener("click", () => {
-  refresh();
-});
-document.querySelectorAll('input[type="radio"]').forEach((radio) => {
-  radio.addEventListener("change", () => {
-    refresh();
-  });
-});
 function refresh() {
   let strategy = "xy" /* XY */;
   if (radioValue("strategy") === "yx") strategy = "yx" /* YX */;
@@ -242,5 +234,13 @@ function generateConfig(strategy) {
   };
 }
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("refresh")?.addEventListener("click", () => {
+    refresh();
+  });
+  document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      refresh();
+    });
+  });
   refresh();
 });
