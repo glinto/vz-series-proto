@@ -1,0 +1,19 @@
+{
+  "name": "vz-series-proto",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "main": "serve.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node serve.js",
+    "prettier:check": "prettier --check ./src",
+    "prettier:write": "prettier --write ./src"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "prettier": "^3.4.1"
+  }
+}
