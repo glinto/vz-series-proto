@@ -18,6 +18,11 @@ let chart = new Vizzu('mychart', {
 	data
 });
 
+function innerHTML(selector: string, html: string) {
+	const element = document.querySelector(selector);
+	if (element instanceof HTMLElement) element.innerHTML = html;
+}
+
 function radioValue(name: string): string | undefined {
 	const radio = document.querySelector(`input[type="radio"][name="${name}"]:checked`);
 	if (radio instanceof HTMLInputElement) return radio.value;
@@ -62,12 +67,15 @@ function seriesFromTextArea(id: string): Series[] {
 }
 
 function refresh() {
-	const config = generateConfig(getStrategy());
+	innerHTML('.app__status', '');
 
-	const pre = document.querySelector('.app__config pre');
-	if (pre !== null) pre.innerHTML = JSON.stringify(config, null, 2);
-
-	chart.animate({ config });
+	try {
+		const config = generateConfig(getStrategy());
+		innerHTML('.app__config pre', JSON.stringify(config, null, 2));
+		chart.animate({ config });
+	} catch (e) {
+		innerHTML('.app__status', (e as Error).toString());
+	}
 }
 
 function generateConfig(strategy: SeriesMappingStrategies) {

@@ -167,6 +167,10 @@ var data = {
 var chart = new Vizzu("mychart", {
   data
 });
+function innerHTML(selector, html) {
+  const element = document.querySelector(selector);
+  if (element instanceof HTMLElement) element.innerHTML = html;
+}
 function radioValue(name) {
   const radio = document.querySelector(`input[type="radio"][name="${name}"]:checked`);
   if (radio instanceof HTMLInputElement) return radio.value;
@@ -200,10 +204,14 @@ function seriesFromTextArea(id) {
   return [];
 }
 function refresh() {
-  const config = generateConfig(getStrategy());
-  const pre = document.querySelector(".app__config pre");
-  if (pre !== null) pre.innerHTML = JSON.stringify(config, null, 2);
-  chart.animate({ config });
+  innerHTML(".app__status", "");
+  try {
+    const config = generateConfig(getStrategy());
+    innerHTML(".app__config pre", JSON.stringify(config, null, 2));
+    chart.animate({ config });
+  } catch (e) {
+    innerHTML(".app__status", e.toString());
+  }
 }
 function generateConfig(strategy) {
   const [measures, stacker, stacked] = [
