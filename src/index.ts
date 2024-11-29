@@ -3,6 +3,7 @@ import Vizzu from 'https://cdn.jsdelivr.net/npm/vizzu@0.15/dist/vizzu.min.js';
 import {
 	Geometry,
 	NocoordsMappingStrategy,
+	RatioMappingStrategy,
 	ScatterMappingStrategy,
 	Series,
 	SeriesMappingStrategies,
@@ -35,6 +36,8 @@ function getStrategy(): SeriesMappingStrategies {
 	if (radioValue('strategy') === 'nocoords') return SeriesMappingStrategies.NOCOORDS;
 	if (radioValue('strategy') === 'yx') return SeriesMappingStrategies.YX;
 	if (radioValue('strategy') === 'scatter') return SeriesMappingStrategies.SCATTER;
+	if (radioValue('strategy') === 'ratio') return SeriesMappingStrategies.RATIO;
+	if (radioValue('strategy') === 'waterfall') return SeriesMappingStrategies.WATERFALL;
 	return SeriesMappingStrategies.XY;
 }
 
@@ -70,8 +73,8 @@ function refresh() {
 function generateConfig(strategy: SeriesMappingStrategies) {
 	const [measures, stacker, stacked] = [
 		seriesFromTextArea('measures'),
-		seriesFromTextArea('segregated-dimensions'),
-		seriesFromTextArea('other-dimensions')
+		seriesFromTextArea('stacker-dimensions'),
+		seriesFromTextArea('stacked-dimensions')
 	];
 	const geometry = getGeometry();
 	const coordSystem = getCoordSystem();
@@ -80,7 +83,9 @@ function generateConfig(strategy: SeriesMappingStrategies) {
 		[SeriesMappingStrategies.NOCOORDS]: NocoordsMappingStrategy,
 		[SeriesMappingStrategies.YX]: YXMappingStrategy,
 		[SeriesMappingStrategies.XY]: XYMappingStrategy,
-		[SeriesMappingStrategies.SCATTER]: ScatterMappingStrategy
+		[SeriesMappingStrategies.SCATTER]: ScatterMappingStrategy,
+		[SeriesMappingStrategies.WATERFALL]: XYMappingStrategy,
+		[SeriesMappingStrategies.RATIO]: RatioMappingStrategy
 	};
 
 	const mapper = new mappingStrategies[strategy](geometry, measures, stacker, stacked);

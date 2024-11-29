@@ -14,15 +14,17 @@
 				</div>
 
 				<div class="app__seriesbox">
-					<label>Segregated dimensions</label>
-					<textarea id="segregated-dimensions" class="app__textinput" placeholder="Enter series" rows="4">
+					<label>Stacker dimensions</label>
+					<textarea id="stacker-dimensions" class="app__textinput" placeholder="Enter series" rows="4">
 Country</textarea
 					>
 				</div>
 
 				<div class="app__seriesbox">
-					<label>Other dimensions</label>
-					<textarea id="other-dimensions" class="app__textinput" placeholder="Enter series" rows="4">Genre:C</textarea>
+					<label>Stacked dimensions</label>
+					<textarea id="stacked-dimensions" class="app__textinput" placeholder="Enter series" rows="4">
+Genre:C</textarea
+					>
 				</div>
 
 				<div class="app__seriesbox">
@@ -63,6 +65,10 @@ Country</textarea
 						<label for="strategy-nocoords">No coords</label>
 						<input type="radio" id="strategy-scatter" name="strategy" value="scatter" />
 						<label for="strategy-scatter">Scatter</label>
+						<input type="radio" id="strategy-waterfall" name="strategy" value="waterfall" />
+						<label for="strategy-waterfall">Waterfall</label>
+						<input type="radio" id="strategy-ratio" name="strategy" value="ratio" />
+						<label for="strategy-ratio">Ratio</label>
 					</div>
 				</div>
 

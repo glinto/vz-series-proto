@@ -26,6 +26,20 @@ var SeriesMappingStrategyBase = class {
     return Array.from(new Set(arr).values());
   }
 };
+var RatioMappingStrategy = class extends SeriesMappingStrategyBase {
+  generateConfig = () => {
+    const stackable = StackableGeometries.includes(this.geometry);
+    return {
+      channels: {
+        x: [...this.measures.slice(0, 1), ...this.stackerDimensions].map((s) => s.name),
+        y: [...this.measures.slice(1, 2), ...stackable ? this.stackedDimensions : []].map((s) => s.name),
+        color: this.colorSeries.map((s) => s.name),
+        lightness: this.lightnessSeries.map((s) => s.name),
+        noop: []
+      }
+    };
+  };
+};
 var ScatterMappingStrategy = class extends SeriesMappingStrategyBase {
   generateConfig = () => {
     if (this.measures.length < 2) {
@@ -168,6 +182,8 @@ function getStrategy() {
   if (radioValue("strategy") === "nocoords") return "nocoords" /* NOCOORDS */;
   if (radioValue("strategy") === "yx") return "yx" /* YX */;
   if (radioValue("strategy") === "scatter") return "scatter" /* SCATTER */;
+  if (radioValue("strategy") === "ratio") return "ratio" /* RATIO */;
+  if (radioValue("strategy") === "waterfall") return "waterfall" /* WATERFALL */;
   return "xy" /* XY */;
 }
 function seriesFromTextArea(id) {
@@ -192,8 +208,8 @@ function refresh() {
 function generateConfig(strategy) {
   const [measures, stacker, stacked] = [
     seriesFromTextArea("measures"),
-    seriesFromTextArea("segregated-dimensions"),
-    seriesFromTextArea("other-dimensions")
+    seriesFromTextArea("stacker-dimensions"),
+    seriesFromTextArea("stacked-dimensions")
   ];
   const geometry = getGeometry();
   const coordSystem = getCoordSystem();
@@ -201,7 +217,9 @@ function generateConfig(strategy) {
     ["nocoords" /* NOCOORDS */]: NocoordsMappingStrategy,
     ["yx" /* YX */]: YXMappingStrategy,
     ["xy" /* XY */]: XYMappingStrategy,
-    ["scatter" /* SCATTER */]: ScatterMappingStrategy
+    ["scatter" /* SCATTER */]: ScatterMappingStrategy,
+    ["waterfall" /* WATERFALL */]: XYMappingStrategy,
+    ["ratio" /* RATIO */]: RatioMappingStrategy
   };
   const mapper = new mappingStrategies[strategy](geometry, measures, stacker, stacked);
   return {

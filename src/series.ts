@@ -22,8 +22,9 @@ export enum SeriesMappingStrategies {
 	XY = 'xy',
 	YX = 'yx',
 	NOCOORDS = 'nocoords',
-	SCATTER = 'scatter'
-	//WATERFALL = 'waterfall'
+	SCATTER = 'scatter',
+	WATERFALL = 'waterfall',
+	RATIO = 'ratio'
 }
 
 abstract class SeriesMappingStrategyBase {
@@ -67,6 +68,28 @@ export type SeriesMappingStrategy =
  * Lightness and color can have only one measure or multiple dimensions
  * You cannot mix measures and dimensions in color and lightness
  */
+
+/**
+ * The ratio startegy is used for pie charts
+ * - First measure is mapped to x
+ * - Second mesaure is optional, mapped to y
+ * - Stacker dimensions are mapped to x
+ * - Stacked dimensions are mapped to y
+ */
+export class RatioMappingStrategy extends SeriesMappingStrategyBase {
+	generateConfig = (): ConfigLike => {
+		const stackable = StackableGeometries.includes(this.geometry);
+		return {
+			channels: {
+				x: [...this.measures.slice(0, 1), ...this.stackerDimensions].map((s) => s.name),
+				y: [...this.measures.slice(1, 2), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
+				color: this.colorSeries.map((s) => s.name),
+				lightness: this.lightnessSeries.map((s) => s.name),
+				noop: []
+			}
+		};
+	};
+}
 
 /**
  * The scatter strategy is used for scatter charts
