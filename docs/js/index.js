@@ -208,7 +208,9 @@ function refresh() {
   try {
     const config = generateConfig(getStrategy());
     innerHTML(".app__config pre", JSON.stringify(config, null, 2));
-    chart.animate({ config });
+    chart.animate({ config }).then(() => {
+      chart.feature("tooltip", true);
+    });
   } catch (e) {
     innerHTML(".app__status", e.toString());
   }
