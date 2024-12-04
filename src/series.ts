@@ -67,6 +67,10 @@ export type SeriesMappingStrategy =
  * Generic rule:
  * Lightness and color can have only one measure or multiple dimensions
  * You cannot mix measures and dimensions in color and lightness
+ *
+ * Color indicators are bound to position, not to series> when moving series indicators must stay in their places
+ * The only way to move indicator positions is to drag / swap the indicators
+ * THe order of color and lihgtness channels must be defined in the same order in the config and must be read out as so
  */
 
 /**
