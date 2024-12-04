@@ -87,9 +87,10 @@ export class RatioMappingStrategy extends SeriesMappingStrategyBase {
 			channels: {
 				x: [...this.measures.slice(0, 1), ...this.stackerDimensions].map((s) => s.name),
 				y: [...this.measures.slice(1, 2), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
+				noop: [],
 				color: this.colorSeries.map((s) => s.name),
 				lightness: this.lightnessSeries.map((s) => s.name),
-				noop: []
+				size: this.sizeSeries.map((s) => s.name)
 			}
 		};
 	};
@@ -111,11 +112,11 @@ export class ScatterMappingStrategy extends SeriesMappingStrategyBase {
 			channels: {
 				x: [this.measures[0].name],
 				y: [this.measures[1].name],
-				color: this.colorSeries.map((s) => s.name),
-				lightness: this.lightnessSeries.map((s) => s.name),
 				noop: [...this.stackerDimensions, ...this.stackedDimensions]
 					.filter((s) => !s.indicators.includes('C') && !s.indicators.includes('L'))
 					.map((s) => s.name),
+				color: this.colorSeries.map((s) => s.name),
+				lightness: this.lightnessSeries.map((s) => s.name),
 				size: this.sizeSeries.map((s) => s.name)
 			}
 		};
@@ -143,9 +144,9 @@ export class NocoordsMappingStrategy extends SeriesMappingStrategyBase {
 			channels: {
 				x: [],
 				y: [],
+				noop: this.stackerDimensions.map((s) => s.name),
 				color: this.colorSeries.map((s) => s.name),
 				lightness: this.lightnessSeries.map((s) => s.name),
-				noop: this.stackerDimensions.map((s) => s.name),
 				size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map((s) => s.name)
 			}
 		};
@@ -165,9 +166,7 @@ export class XYMappingStrategy extends SeriesMappingStrategyBase {
 			channels: {
 				x: this.stackerDimensions.map((s) => s.name),
 				y: [...this.measures.slice(0, 1), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
-
 				noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
-
 				color: this.colorSeries.map((s) => s.name),
 				lightness: this.lightnessSeries.map((s) => s.name),
 				size: this.sizeSeries.map((s) => s.name)
@@ -190,9 +189,7 @@ export class YXMappingStrategy extends SeriesMappingStrategyBase {
 			channels: {
 				y: this.stackerDimensions.map((s) => s.name),
 				x: [...this.measures.slice(0, 1), ...(stackable ? this.stackedDimensions : [])].map((s) => s.name),
-
 				noop: stackable ? [] : this.stackedDimensions.map((s) => s.name),
-
 				color: this.colorSeries.map((s) => s.name),
 				lightness: this.lightnessSeries.map((s) => s.name),
 				size: this.sizeSeries.map((s) => s.name)

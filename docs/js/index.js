@@ -33,9 +33,10 @@ var RatioMappingStrategy = class extends SeriesMappingStrategyBase {
       channels: {
         x: [...this.measures.slice(0, 1), ...this.stackerDimensions].map((s) => s.name),
         y: [...this.measures.slice(1, 2), ...stackable ? this.stackedDimensions : []].map((s) => s.name),
+        noop: [],
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
-        noop: []
+        size: this.sizeSeries.map((s) => s.name)
       }
     };
   };
@@ -49,9 +50,9 @@ var ScatterMappingStrategy = class extends SeriesMappingStrategyBase {
       channels: {
         x: [this.measures[0].name],
         y: [this.measures[1].name],
+        noop: [...this.stackerDimensions, ...this.stackedDimensions].filter((s) => !s.indicators.includes("C") && !s.indicators.includes("L")).map((s) => s.name),
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
-        noop: [...this.stackerDimensions, ...this.stackedDimensions].filter((s) => !s.indicators.includes("C") && !s.indicators.includes("L")).map((s) => s.name),
         size: this.sizeSeries.map((s) => s.name)
       }
     };
@@ -63,9 +64,9 @@ var NocoordsMappingStrategy = class extends SeriesMappingStrategyBase {
       channels: {
         x: [],
         y: [],
+        noop: this.stackerDimensions.map((s) => s.name),
         color: this.colorSeries.map((s) => s.name),
         lightness: this.lightnessSeries.map((s) => s.name),
-        noop: this.stackerDimensions.map((s) => s.name),
         size: [...this.measures.slice(0, 1), ...this.stackedDimensions].map((s) => s.name)
       }
     };
